@@ -1,6 +1,8 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Aplicacion;
+using ToDoList.Comun.Excepciones;
 using ToDoList.Dominio;
 
 namespace ToDoList.WebAPI.Controllers
@@ -9,12 +11,21 @@ namespace ToDoList.WebAPI.Controllers
     [Route("[controller]")]
     public class TareasController : ControllerBase
     {
+        /// <summary>
+        /// Devuelve todas las tareas
+        /// </summary>
+        /// <returns>Lista de tareas</returns>
         [HttpGet]
         public IEnumerable<TareaDTO> TraerTodas()
         {
             return new TareasService().TraerTodas();
         }
 
+        /// <summary>
+        /// Crea una tarea
+        /// </summary>
+        /// <param name="tarea">Datos de la tarea a crear</param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult CrearTarea([FromBody] TareaViewModel tarea)
         {
@@ -31,6 +42,12 @@ namespace ToDoList.WebAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Actualiza una tarea
+        /// </summary>
+        /// <param name="idTarea">ID de la tarea</param>
+        /// <param name="tarea">Datos de la tarea</param>
+        /// <returns></returns>
         [HttpPut("{idTarea:int:min(1)}")]
         public IActionResult ActualizarTarea(
             int idTarea, 
@@ -47,6 +64,31 @@ namespace ToDoList.WebAPI.Controllers
                 descripcion: tarea.Descripcion,
                 estado: tarea.Estado.ToLower()
             );
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Elimina una tarea
+        /// </summary>
+        /// <param name="idTarea">ID de la tarea</param>
+        /// <returns></returns>
+        /// <response code="200">La tarea se eliminó exitosamente</response>
+        /// <response code="404">No se encontró una tarea con el ID especificado</response>
+        [HttpDelete("{idTarea:int:min(1)}")]
+        public IActionResult EliminarTarea(int idTarea)
+        {
+            try
+            {
+                new TareasService().EliminarTarea(idTarea: idTarea);
+            }
+            catch (ToDoException ex)
+            {
+                if (ex.ErrorType == ErrorType.NotFound)
+                    return NotFound();
+                else
+                    return StatusCode(500);
+            }
 
             return Ok();
         }

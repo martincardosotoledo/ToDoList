@@ -3,17 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList.WebAPI", "ToDoList.WebAPI\ToDoList.WebAPI.csproj", "{B95F78A0-3026-40A9-85EB-40DB3795FAC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.WebAPI", "ToDoList.WebAPI\ToDoList.WebAPI.csproj", "{B95F78A0-3026-40A9-85EB-40DB3795FAC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList.Dominio", "ToDoList.Dominio\ToDoList.Dominio.csproj", "{7A1F7E70-429F-4F46-B1E5-D878E94622E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.Dominio", "ToDoList.Dominio\ToDoList.Dominio.csproj", "{7A1F7E70-429F-4F46-B1E5-D878E94622E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList.Aplicacion", "ToDoList.Aplicacion\ToDoList.Aplicacion.csproj", "{14E8291A-4914-41AE-9739-0393FAB94144}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.Aplicacion", "ToDoList.Aplicacion\ToDoList.Aplicacion.csproj", "{14E8291A-4914-41AE-9739-0393FAB94144}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList.DataAccess", "ToDoList.DataAccess\ToDoList.DataAccess.csproj", "{DD864215-D225-4CE0-B537-626A2747F527}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.DataAccess", "ToDoList.DataAccess\ToDoList.DataAccess.csproj", "{DD864215-D225-4CE0-B537-626A2747F527}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8E2E5FE5-E186-44A4-B974-B604F83EADE9}"
 	ProjectSection(SolutionItems) = preProject
+		Desafio_Desarrollador_2024.pdf = Desafio_Desarrollador_2024.pdf
 		README.txt = README.txt
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.UnitTests", "ToDoList.UnitTest\ToDoList.UnitTests.csproj", "{2228873F-F922-47EB-B272-474F4E1C99B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.Comun", "ToDoList.Comun\ToDoList.Comun.csproj", "{9B0092BE-C155-47F5-9292-2B2DB0F3EF9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65AED4D9-5582-4779-9399-D12DA5F27FCB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Global
@@ -38,6 +48,14 @@ Global
 		{DD864215-D225-4CE0-B537-626A2747F527}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD864215-D225-4CE0-B537-626A2747F527}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD864215-D225-4CE0-B537-626A2747F527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2228873F-F922-47EB-B272-474F4E1C99B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2228873F-F922-47EB-B272-474F4E1C99B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2228873F-F922-47EB-B272-474F4E1C99B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2228873F-F922-47EB-B272-474F4E1C99B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B0092BE-C155-47F5-9292-2B2DB0F3EF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B0092BE-C155-47F5-9292-2B2DB0F3EF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B0092BE-C155-47F5-9292-2B2DB0F3EF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B0092BE-C155-47F5-9292-2B2DB0F3EF9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

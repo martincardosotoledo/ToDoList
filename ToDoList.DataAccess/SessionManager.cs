@@ -7,12 +7,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NHibernate.Tool.hbm2ddl;
+using static System.Collections.Specialized.BitVector32;
+using NHibernate.Cfg;
 
 namespace ToDoList.DataAccess
 {
     public class SessionManager
     {
         private static ISessionFactory _sessionFactory = null;
+        private static Configuration _nhibernateConfig = null;
 
         #region Thread-safe, lazy Singleton
 
@@ -28,6 +32,8 @@ namespace ToDoList.DataAccess
                 return Nested.NHibernateSessionManager;
             }
         }
+
+        public static Configuration NhibernateConfig { get; private set; }
 
         /// <summary>
         /// Private constructor to enforce singleton
@@ -57,10 +63,10 @@ namespace ToDoList.DataAccess
                 if (_sessionFactory != null)
                     throw new Exception("Las session factories ya estaban inicializadas");
 
-                NHibernate.Cfg.Configuration hibernateConfig = new NHibernate.Cfg.Configuration();
-                hibernateConfig.Configure(Path.Combine(appBasePath, @"nhibernate.config"));
+                NhibernateConfig = new NHibernate.Cfg.Configuration();
+                NhibernateConfig.Configure(Path.Combine(appBasePath, @"nhibernate.config"));
 
-                _sessionFactory = Fluently.Configure(hibernateConfig)
+                _sessionFactory = Fluently.Configure(NhibernateConfig)
                                           .Mappings(m =>
                                           {
                                               m.FluentMappings.AddFromAssemblyOf<SessionManager>();
@@ -114,11 +120,11 @@ namespace ToDoList.DataAccess
 
         public ISession GetCurrentSession()
         {
-            if (!CurrentSessionContext.HasBind(GetFactory()))
-            {
-                var session = GetFactory().OpenSession();
-                CurrentSessionContext.Bind(session);
-            }
+            //if (!CurrentSessionContext.HasBind(GetFactory()))
+            //{
+            //    var session = GetFactory().OpenSession();
+            //    CurrentSessionContext.Bind(session);
+            //}
 
             return GetFactory().GetCurrentSession();
         }

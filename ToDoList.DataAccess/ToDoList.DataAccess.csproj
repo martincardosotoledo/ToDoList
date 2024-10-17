@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ToDoList.Comun\ToDoList.Comun.csproj" />
     <ProjectReference Include="..\ToDoList.Dominio\ToDoList.Dominio.csproj" />
   </ItemGroup>
 

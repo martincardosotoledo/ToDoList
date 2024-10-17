@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using NHibernate;
 using System.Collections.Generic;
 using System.Threading;
+using ToDoList.Comun.Excepciones;
 using ToDoList.DataAccess;
 using ToDoList.Dominio;
 
@@ -11,67 +13,68 @@ namespace ToDoList.Aplicacion
     {
         public IList<TareaDTO> TraerTodas()
         {
-            IList<TareaDTO> tareaDTOs = null;
-
-            using (ISession session = SessionManager.Instance.GetFactory().OpenSession())
-            {
-                var repo = new TareaRepository(session);
-
-                tareaDTOs = (from t in repo.TraerTodas()
-                             select new TareaDTO { 
-                                 ID = t.ID,
-                                 Titulo = t.Titulo,
-                                 Descripcion = t.Descripcion,
-                                 FechaCreacion = t.FechaCreacion,   
-                                 Estado = Enum.GetName<EstadoTarea>(t.Estado)
-                             }).ToList();
-            }
-
-            return tareaDTOs;
+            return (from t in new TareaRepository().TraerTodas()
+                    select new TareaDTO { 
+                        ID = t.ID,
+                        Titulo = t.Titulo,
+                        Descripcion = t.Descripcion,
+                        FechaCreacion = t.FechaCreacion,   
+                        Estado = Enum.GetName<EstadoTarea>(t.Estado)
+                    }).ToList();
         }
 
         public void CrearTarea(string titulo, string descripcion)
         {
-            using (ISession session = SessionManager.Instance.GetFactory().OpenSession())
+            var repo = new TareaRepository();
+
+            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
             {
-                var repo = new TareaRepository(session);
+                Tarea tarea = Tarea.Crear(titulo: titulo, descripcion: descripcion);
 
-                using (ITransaction tran = session.BeginTransaction())
-                {
-                    Tarea tarea = Tarea.Crear(titulo: titulo, descripcion: descripcion);
+                new TareaValidator().ValidateAndThrow(tarea);
 
-                    new TareaValidator().ValidateAndThrow(tarea);
+                repo.Guardar(tarea);
 
-                    repo.Guardar(tarea);
-
-                    tran.Commit();
-                }
+                tran.Commit();
             }
         }
 
 
         public void ActualizarTarea(int idTarea, string titulo, string descripcion, string estado)
         {
-            using (ISession session = SessionManager.Instance.GetFactory().OpenSession())
+            var repo = new TareaRepository();
+
+            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
             {
-                var repo = new TareaRepository(session);
+                Tarea tarea = repo.Cargar(idTarea);
 
-                using (ITransaction tran = session.BeginTransaction())
-                {
-                    Tarea tarea = repo.Traer(idTarea);
+                //if (tarea is null)
+                //    return Result<int>.Failure("");
 
-                    tarea.Titulo = titulo;
-                    tarea.Descripcion = descripcion;
-                    tarea.Estado = ConvertirEstadoTareaDesdeDescripcion(estado);
+                tarea.Titulo = titulo;
+                tarea.Descripcion = descripcion;
+                tarea.Estado = ConvertirEstadoTareaDesdeDescripcion(estado);
 
-                    new TareaValidator().ValidateAndThrow(tarea);
+                new TareaValidator().ValidateAndThrow(tarea);
 
-                    repo.Guardar(tarea);
+                repo.Guardar(tarea);
 
-                    tran.Commit();
-                }
+                tran.Commit();
             }
         }
+
+        public void EliminarTarea(int idTarea)
+        {
+            var repo = new TareaRepository();
+
+            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            {
+                repo.Eliminar(idTarea);
+
+                tran.Commit();
+            }
+        }
+
         private EstadoTarea ConvertirEstadoTareaDesdeDescripcion(string descripcion)
         {
             switch (descripcion)
@@ -101,6 +104,11 @@ namespace ToDoList.Aplicacion
             }
         }
 
+        //public class Errores
+        //{
+        //    public static int NotFound;
+        //}
+
     }
 
 
@@ -114,14 +122,16 @@ namespace ToDoList.Aplicacion
                 Tarea.Crear("Pagar la luz", "Vence el 26")
             };
 
-            using (ISession session = SessionManager.Instance.GetFactory().OpenSession())
+            //using (ISession session = SessionManager.Instance.GetCurrentSession())
             {
-                var repo = new TareaRepository(session);
+                var repo = new TareaRepository();
 
-                using (ITransaction tran = session.BeginTransaction())
+                using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
                 {
                     foreach (var tarea in tareas)
-                        session.Save(tarea);
+                        SessionManager.Instance.GetCurrentSession().Save(tarea);
+
+                    tran.Commit();
                 }
             }
 
