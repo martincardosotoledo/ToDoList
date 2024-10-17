@@ -43,9 +43,10 @@ app.UseMiddleware<NHibernateSessionMiddleware>();
 
 app.MapControllers();
 
+DummyDataHelper.CrearDummyData();
+
 app.Run();
 
 
-DummyDataHelper.CrearDummyData();
 
 

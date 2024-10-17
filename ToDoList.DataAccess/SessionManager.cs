@@ -120,11 +120,11 @@ namespace ToDoList.DataAccess
 
         public ISession GetCurrentSession()
         {
-            //if (!CurrentSessionContext.HasBind(GetFactory()))
-            //{
-            //    var session = GetFactory().OpenSession();
-            //    CurrentSessionContext.Bind(session);
-            //}
+            if (!CurrentSessionContext.HasBind(GetFactory()))
+            {
+                var session = GetFactory().OpenSession();
+                CurrentSessionContext.Bind(session);
+            }
 
             return GetFactory().GetCurrentSession();
         }
