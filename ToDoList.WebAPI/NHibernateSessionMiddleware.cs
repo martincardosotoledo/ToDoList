@@ -22,14 +22,14 @@ namespace ToDoList.WebAPI
 
                 await _next(context); 
 
-                if (session.GetCurrentTransaction().IsActive)
+                if (session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
                 {
                     await session.GetCurrentTransaction().CommitAsync();
                 }
             }
             catch
             {
-                if (session.GetCurrentTransaction().IsActive)
+                if (session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
                 {
                     await session.GetCurrentTransaction().RollbackAsync();
                 }
