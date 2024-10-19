@@ -22,7 +22,6 @@ namespace ToDoList.WebAPI.Controllers
         [Route("{idTarea:int}")] // hay que definir 2 rutas ya que openAPI no soporte parámetros de ruta opcionales y la UI generada de swagger por lo tanto tampoco
         public IActionResult Traer(TareasService tareasService, int? idTarea = null)
         {
-            throw new Exception("sss");
             if (idTarea.HasValue)
                 return Ok(tareasService.Traer(idTarea.Value));
             else
