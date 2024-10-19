@@ -3,7 +3,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ToDoList.Dominio
 {
-    public class Tarea
+    public class Tarea : Entidad
     {
         public static Tarea Crear(
             string titulo,
@@ -18,8 +18,6 @@ namespace ToDoList.Dominio
         }
 
         protected Tarea() { }
-
-        public virtual int ID { get; protected set; }
 
         public virtual string Titulo { get; set; }
 

@@ -15,8 +15,7 @@ namespace ToDoList.DataAccess
 {
     public class SessionManager
     {
-        private static ISessionFactory _sessionFactory = null;
-        private static Configuration _nhibernateConfig = null;
+        private static ISessionFactory? _sessionFactory = null;
 
         #region Thread-safe, lazy Singleton
 
@@ -33,7 +32,7 @@ namespace ToDoList.DataAccess
             }
         }
 
-        public static Configuration NhibernateConfig { get; private set; }
+        public static Configuration? NhibernateConfig { get; private set; }
 
         /// <summary>
         /// Private constructor to enforce singleton
@@ -77,7 +76,7 @@ namespace ToDoList.DataAccess
 
         public ITransaction BeginTransaction(ISession session)
         {
-            ITransaction transaction = session.Transaction;
+            ITransaction transaction = session.GetCurrentTransaction();
 
             if (transaction == null)
             {
@@ -98,8 +97,6 @@ namespace ToDoList.DataAccess
             }
         }
 
-
-
         private bool IsOpenTransaction(ITransaction transaction)
         {
             return transaction != null && !transaction.WasCommitted && !transaction.WasRolledBack;
@@ -107,7 +104,7 @@ namespace ToDoList.DataAccess
 
         public bool HasOpenTransaction(ISession session)
         {
-            return IsOpenTransaction(session.Transaction);
+            return IsOpenTransaction(session.GetCurrentTransaction());
         }
 
         /// <summary>
@@ -115,7 +112,7 @@ namespace ToDoList.DataAccess
         /// </summary>
         public ISessionFactory GetFactory()
         {
-            return _sessionFactory;
+            return _sessionFactory!;
         }
 
         public ISession GetCurrentSession()

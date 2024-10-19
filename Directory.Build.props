@@ -1,0 +1,5 @@
+<Project>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<NoWarn>CS1573</NoWarn>
+	</PropertyGroup>
+</Project>

@@ -14,13 +14,13 @@ namespace ToDoList.Aplicacion
         public IList<TareaDTO> TraerTodas()
         {
             return (from t in new TareaRepository().TraerTodas()
-                    select new TareaDTO { 
-                        ID = t.ID,
-                        Titulo = t.Titulo,
-                        Descripcion = t.Descripcion,
-                        FechaCreacion = t.FechaCreacion,   
-                        Estado = Enum.GetName<EstadoTarea>(t.Estado)
-                    }).ToList();
+                    select TareaDtoMapper.From(t)).ToList();
+        }
+
+        public TareaDTO Traer(int idTarea)
+        {
+            var tarea = new TareaRepository().Traer(idTarea);
+            return TareaDtoMapper.From(tarea);
         }
 
         public void CrearTarea(string titulo, string descripcion)
@@ -46,10 +46,7 @@ namespace ToDoList.Aplicacion
 
             using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
             {
-                Tarea tarea = repo.Cargar(idTarea);
-
-                //if (tarea is null)
-                //    return Result<int>.Failure("");
+                Tarea tarea = repo.Traer(idTarea);
 
                 tarea.Titulo = titulo;
                 tarea.Descripcion = descripcion;
@@ -104,12 +101,23 @@ namespace ToDoList.Aplicacion
             }
         }
 
-        //public class Errores
-        //{
-        //    public static int NotFound;
-        //}
-
+        internal static class TareaDtoMapper
+        {
+            public static TareaDTO From(Tarea tarea)
+            {
+                return new TareaDTO
+                {
+                    ID = tarea.ID,
+                    Titulo = tarea.Titulo,
+                    Descripcion = tarea.Descripcion,
+                    FechaCreacion = tarea.FechaCreacion,
+                    Estado = Enum.GetName<EstadoTarea>(tarea.Estado)!
+                };
+            }
+        }
     }
+
+   
 
 
     public static class DummyDataHelper {

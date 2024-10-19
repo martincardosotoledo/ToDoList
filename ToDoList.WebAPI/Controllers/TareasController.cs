@@ -11,14 +11,20 @@ namespace ToDoList.WebAPI.Controllers
     [Route("[controller]")]
     public class TareasController : ControllerBase
     {
+
         /// <summary>
-        /// Devuelve todas las tareas
+        /// Devuelve las tareas
         /// </summary>
         /// <returns>Lista de tareas</returns>
         [HttpGet]
-        public IEnumerable<TareaDTO> TraerTodas()
+        [Route("")]
+        [Route("{idTarea:int}")] // hay que definir 2 rutas ya que openAPI no soporte parámetros de ruta opcionales y la UI generada de swagger por lo tanto tampoco
+        public IActionResult Traer(TareasService tareasService, int? idTarea = null)
         {
-            return new TareasService().TraerTodas();
+            if (idTarea.HasValue)
+                return Ok(tareasService.Traer(idTarea.Value));
+            else
+                return Ok(tareasService.TraerTodas());
         }
 
         /// <summary>
@@ -27,16 +33,13 @@ namespace ToDoList.WebAPI.Controllers
         /// <param name="tarea">Datos de la tarea a crear</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult CrearTarea([FromBody] TareaViewModel tarea)
+        public IActionResult CrearTarea(
+            [FromBody] TareaViewModel tarea, 
+            TareasService tareasService)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            new TareasService().CrearTarea(
-                titulo: tarea.Titulo,
-                descripcion: tarea.Descripcion
+            tareasService.CrearTarea(
+                titulo: tarea.Titulo!,
+                descripcion: tarea.Descripcion!
             );
 
             return Ok();
@@ -51,18 +54,14 @@ namespace ToDoList.WebAPI.Controllers
         [HttpPut("{idTarea:int:min(1)}")]
         public IActionResult ActualizarTarea(
             int idTarea, 
-            [FromBody] TareaEdicionViewModel tarea)
+            [FromBody] TareaEdicionViewModel tarea,
+            TareasService tareasService)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            new TareasService().ActualizarTarea(
+            tareasService.ActualizarTarea(
                 idTarea: idTarea,
-                titulo: tarea.Titulo,
-                descripcion: tarea.Descripcion,
-                estado: tarea.Estado.ToLower()
+                titulo: tarea.Titulo!,
+                descripcion: tarea.Descripcion!,
+                estado: tarea.Estado!
             );
 
             return Ok();
@@ -76,7 +75,8 @@ namespace ToDoList.WebAPI.Controllers
         /// <response code="200">La tarea se eliminó exitosamente</response>
         /// <response code="404">No se encontró una tarea con el ID especificado</response>
         [HttpDelete("{idTarea:int:min(1)}")]
-        public IActionResult EliminarTarea(int idTarea)
+        public IActionResult EliminarTarea(int idTarea,
+            TareasService tareasService)
         {
             try
             {
@@ -96,15 +96,15 @@ namespace ToDoList.WebAPI.Controllers
 
     public class TareaViewModel
     {
-        public string Titulo { get; set; }
+        public string? Titulo { get; set; }
 
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
     }
 
     public class TareaEdicionViewModel : TareaViewModel
     {
-        public string Estado { get; set; }
+        public string? Estado { get; set; }
     }
 
     public class TareaViewModelValidator : AbstractValidator<TareaViewModel>
