@@ -20,22 +20,23 @@ namespace ToDoList.Aplicacion
         public TareaDTO Traer(int idTarea)
         {
             var tarea = new TareaRepository().Traer(idTarea);
+
             return TareaDtoMapper.From(tarea);
         }
 
-        public void CrearTarea(string titulo, string descripcion)
+        public int CrearTarea(string titulo, string descripcion)
         {
-            var repo = new TareaRepository();
-
             using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
             {
                 Tarea tarea = Tarea.Crear(titulo: titulo, descripcion: descripcion);
 
                 new TareaValidator().ValidateAndThrow(tarea);
 
-                repo.Guardar(tarea);
+                new TareaRepository().Guardar(tarea); // mmm, cómo es que la tarea tiene un valor asignado aquí si se supone que es la base de datos la que debe asignarlo?
 
                 tran.Commit();
+
+                return tarea.ID; 
             }
         }
 

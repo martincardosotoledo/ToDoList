@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Aplicacion;
@@ -8,7 +9,7 @@ using ToDoList.Dominio;
 namespace ToDoList.WebAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TareasController : ControllerBase
     {
 
@@ -21,6 +22,7 @@ namespace ToDoList.WebAPI.Controllers
         [Route("{idTarea:int}")] // hay que definir 2 rutas ya que openAPI no soporte parámetros de ruta opcionales y la UI generada de swagger por lo tanto tampoco
         public IActionResult Traer(TareasService tareasService, int? idTarea = null)
         {
+            throw new Exception("sss");
             if (idTarea.HasValue)
                 return Ok(tareasService.Traer(idTarea.Value));
             else
@@ -34,15 +36,15 @@ namespace ToDoList.WebAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         public IActionResult CrearTarea(
-            [FromBody] TareaViewModel tarea, 
+            [FromBody] TareaViewModel tarea,
             TareasService tareasService)
         {
-            tareasService.CrearTarea(
+            int idTarea = tareasService.CrearTarea(
                 titulo: tarea.Titulo!,
                 descripcion: tarea.Descripcion!
             );
 
-            return Ok();
+            return Ok($"IdTarea: {idTarea}");
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace ToDoList.WebAPI.Controllers
         /// <returns></returns>
         [HttpPut("{idTarea:int:min(1)}")]
         public IActionResult ActualizarTarea(
-            int idTarea, 
+            int idTarea,
             [FromBody] TareaEdicionViewModel tarea,
             TareasService tareasService)
         {
@@ -78,20 +80,32 @@ namespace ToDoList.WebAPI.Controllers
         public IActionResult EliminarTarea(int idTarea,
             TareasService tareasService)
         {
-            try
-            {
-                new TareasService().EliminarTarea(idTarea: idTarea);
-            }
-            catch (ToDoException ex)
-            {
-                if (ex.ErrorType == ErrorType.NotFound)
-                    return NotFound();
-                else
-                    return StatusCode(500);
-            }
-
+            new TareasService().EliminarTarea(idTarea: idTarea);
             return Ok();
         }
+
+    //    [ApiExplorerSettings(IgnoreApi = true)]
+    //    [Route("/error-development")]
+    //    public IActionResult HandleErrorDevelopment(
+    //[FromServices] IHostEnvironment hostEnvironment)
+    //    {
+    //        if (!hostEnvironment.IsDevelopment())
+    //        {
+    //            return NotFound();
+    //        }
+
+    //        var exceptionHandlerFeature =
+    //            HttpContext.Features.Get<IExceptionHandlerFeature>()!;
+
+    //        return Problem(
+    //            detail: exceptionHandlerFeature.Error.StackTrace,
+    //            title: exceptionHandlerFeature.Error.Message);
+    //    }
+
+    //    [ApiExplorerSettings(IgnoreApi = true)]
+    //    [Route("/error")]
+    //    public IActionResult HandleError() =>
+    //        Problem();
     }
 
     public class TareaViewModel

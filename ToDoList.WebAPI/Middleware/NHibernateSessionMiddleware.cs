@@ -1,7 +1,7 @@
 ﻿using NHibernate;
 using ToDoList.DataAccess;
 
-namespace ToDoList.WebAPI
+namespace ToDoList.WebAPI.Middleware
 {
     public class NHibernateSessionMiddleware
     {
@@ -20,7 +20,7 @@ namespace ToDoList.WebAPI
             {
                 NHibernate.Context.CurrentSessionContext.Bind(session);
 
-                await _next(context); 
+                await _next(context);
 
                 if (session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
                 {

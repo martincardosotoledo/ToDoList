@@ -26,26 +26,17 @@ namespace ToDoList.DataAccess
 
         public void Eliminar(int id)
         {
-            try
-            {
-                Session.Delete(Session.Load<T>(id));
-            }
-            catch (NHibernate.ObjectNotFoundException ex)
-            {
-                throw new ToDoException(string.Empty, ex, ToDoList.Comun.Excepciones.ErrorType.NotFound);
-            }
+            Session.Delete(Session.Load<T>(id));
         }
 
         public T Traer(int id)
         {
-            try
-            {
-                return Session.Get<T>(id);
-            }
-            catch (NHibernate.ObjectNotFoundException ex)
-            {
-                throw new ToDoException(string.Empty, ex, ToDoList.Comun.Excepciones.ErrorType.NotFound);
-            }
+            T entidad = Session.Get<T>(id);
+            
+            if (entidad == null)
+                throw new NHibernate.ObjectNotFoundException(id, nameof(T));
+
+            return entidad;
         }
 
         public T Cargar(int id)
