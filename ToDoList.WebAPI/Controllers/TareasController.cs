@@ -1,39 +1,53 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using ToDoList.Aplicacion;
 using ToDoList.Comun.Excepciones;
 using ToDoList.Dominio;
 
 namespace ToDoList.WebAPI.Controllers
 {
+    [Authorize(Policy = "TodoCrud")]
     [ApiController]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Route("api/[controller]")]
     public class TareasController : ControllerBase
     {
-
-        /// <summary>
         /// Devuelve las tareas
         /// </summary>
-        /// <returns>Lista de tareas</returns>
+        /// <returns>Lista de todas las tareas</returns>
         [HttpGet]
-        [Route("")]
-        [Route("{idTarea:int}")] // hay que definir 2 rutas ya que openAPI no soporte parámetros de ruta opcionales y la UI generada de swagger por lo tanto tampoco
-        public IActionResult Traer(TareasService tareasService, int? idTarea = null)
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(IEnumerable<TareaDTO>), StatusCodes.Status200OK)]
+        public IActionResult Traer(TareasService tareasService)
         {
-            if (idTarea.HasValue)
-                return Ok(tareasService.Traer(idTarea.Value));
-            else
-                return Ok(tareasService.TraerTodas());
+            IEnumerable<TareaDTO> tareas = tareasService.TraerTodas();
+            return Ok(tareas);
+        }
+
+        /// <summary>
+        /// Devuelve una tarea
+        /// </summary>
+        /// <returns>La tarea solicitada</returns>
+        [HttpGet("{idTarea:int}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(TareaDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult Traer(TareasService tareasService, int idTarea)
+        {
+            TareaDTO tarea = tareasService.Traer(idTarea);
+            return Ok(tarea);
         }
 
         /// <summary>
         /// Crea una tarea
         /// </summary>
         /// <param name="tarea">Datos de la tarea a crear</param>
-        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public IActionResult CrearTarea(
             [FromBody] TareaViewModel tarea,
             TareasService tareasService)
@@ -43,7 +57,7 @@ namespace ToDoList.WebAPI.Controllers
                 descripcion: tarea.Descripcion!
             );
 
-            return Ok($"IdTarea: {idTarea}");
+            return CreatedAtAction(nameof(Traer), new { idTarea = idTarea}, null);
         }
 
         /// <summary>
@@ -51,7 +65,8 @@ namespace ToDoList.WebAPI.Controllers
         /// </summary>
         /// <param name="idTarea">ID de la tarea</param>
         /// <param name="tarea">Datos de la tarea</param>
-        /// <returns></returns>
+        /// <response code="204">La tarea se acualizó exitosamente</response>
+        /// <response code="404">No se encontró una tarea con el ID especificado</response>
         [HttpPut("{idTarea:int:min(1)}")]
         public IActionResult ActualizarTarea(
             int idTarea,
@@ -65,7 +80,7 @@ namespace ToDoList.WebAPI.Controllers
                 estado: tarea.Estado!
             );
 
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -73,38 +88,38 @@ namespace ToDoList.WebAPI.Controllers
         /// </summary>
         /// <param name="idTarea">ID de la tarea</param>
         /// <returns></returns>
-        /// <response code="200">La tarea se eliminó exitosamente</response>
+        /// <response code="204">La tarea se eliminó exitosamente</response>
         /// <response code="404">No se encontró una tarea con el ID especificado</response>
         [HttpDelete("{idTarea:int:min(1)}")]
         public IActionResult EliminarTarea(int idTarea,
             TareasService tareasService)
         {
-            new TareasService().EliminarTarea(idTarea: idTarea);
-            return Ok();
+            tareasService.EliminarTarea(idTarea: idTarea);
+            return NoContent();
         }
 
-    //    [ApiExplorerSettings(IgnoreApi = true)]
-    //    [Route("/error-development")]
-    //    public IActionResult HandleErrorDevelopment(
-    //[FromServices] IHostEnvironment hostEnvironment)
-    //    {
-    //        if (!hostEnvironment.IsDevelopment())
-    //        {
-    //            return NotFound();
-    //        }
+        //    [ApiExplorerSettings(IgnoreApi = true)]
+        //    [Route("/error-development")]
+        //    public IActionResult HandleErrorDevelopment(
+        //[FromServices] IHostEnvironment hostEnvironment)
+        //    {
+        //        if (!hostEnvironment.IsDevelopment())
+        //        {
+        //            return NotFound();
+        //        }
 
-    //        var exceptionHandlerFeature =
-    //            HttpContext.Features.Get<IExceptionHandlerFeature>()!;
+        //        var exceptionHandlerFeature =
+        //            HttpContext.Features.Get<IExceptionHandlerFeature>()!;
 
-    //        return Problem(
-    //            detail: exceptionHandlerFeature.Error.StackTrace,
-    //            title: exceptionHandlerFeature.Error.Message);
-    //    }
+        //        return Problem(
+        //            detail: exceptionHandlerFeature.Error.StackTrace,
+        //            title: exceptionHandlerFeature.Error.Message);
+        //    }
 
-    //    [ApiExplorerSettings(IgnoreApi = true)]
-    //    [Route("/error")]
-    //    public IActionResult HandleError() =>
-    //        Problem();
+        //    [ApiExplorerSettings(IgnoreApi = true)]
+        //    [Route("/error")]
+        //    public IActionResult HandleError() =>
+        //        Problem();
     }
 
     public class TareaViewModel
