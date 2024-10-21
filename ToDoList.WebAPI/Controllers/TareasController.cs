@@ -17,7 +17,7 @@ namespace ToDoList.WebAPI.Controllers
     public class TareasController : ControllerBase
     {
         /// <summary>
-        /// Devuelve las tareas
+        /// Devuelve todas las tareas
         /// </summary>
         /// <returns>Lista de todas las tareas</returns>
         [HttpGet]
