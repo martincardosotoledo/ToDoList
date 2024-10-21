@@ -1,4 +1,6 @@
 ﻿using NHibernate;
+using NHibernate.Context;
+using System.Runtime.CompilerServices;
 using ToDoList.DataAccess;
 
 namespace ToDoList.WebAPI.Middleware
@@ -14,22 +16,19 @@ namespace ToDoList.WebAPI.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            var session = SessionManager.Instance.GetFactory().OpenSession();
-
+            NHibernate.ISession? session = null;
+            
             try
             {
-                NHibernate.Context.CurrentSessionContext.Bind(session);
-
                 await _next(context);
 
-                if (session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
-                {
-                    await session.GetCurrentTransaction().CommitAsync();
-                }
+                session = NHibernate.Context.CurrentSessionContext.HasBind(SessionManager.Instance.GetFactory()) ?
+                          SessionManager.Instance.GetFactory().GetCurrentSession() : 
+                          null;
             }
             catch
             {
-                if (session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
+                if (session != null && session.GetCurrentTransaction() != null && session.GetCurrentTransaction().IsActive)
                 {
                     await session.GetCurrentTransaction().RollbackAsync();
                 }
@@ -38,9 +37,10 @@ namespace ToDoList.WebAPI.Middleware
             }
             finally
             {
-                // Hacer unbind y cerrar la sesión
-                NHibernate.Context.CurrentSessionContext.Unbind(session.SessionFactory);
-                session.Close();
+                if (session != null) { 
+                    NHibernate.Context.CurrentSessionContext.Unbind(session.SessionFactory);
+                    session.Close();
+                }
             }
         }
     }

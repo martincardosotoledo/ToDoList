@@ -16,6 +16,7 @@ namespace ToDoList.WebAPI.Controllers
     [Route("api/[controller]")]
     public class TareasController : ControllerBase
     {
+        /// <summary>
         /// Devuelve las tareas
         /// </summary>
         /// <returns>Lista de todas las tareas</returns>
@@ -58,7 +59,7 @@ namespace ToDoList.WebAPI.Controllers
             );
 
             return CreatedAtAction(nameof(Traer), new { idTarea = idTarea}, null);
-        }
+        }   
 
         /// <summary>
         /// Actualiza una tarea
@@ -97,29 +98,6 @@ namespace ToDoList.WebAPI.Controllers
             tareasService.EliminarTarea(idTarea: idTarea);
             return NoContent();
         }
-
-        //    [ApiExplorerSettings(IgnoreApi = true)]
-        //    [Route("/error-development")]
-        //    public IActionResult HandleErrorDevelopment(
-        //[FromServices] IHostEnvironment hostEnvironment)
-        //    {
-        //        if (!hostEnvironment.IsDevelopment())
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        var exceptionHandlerFeature =
-        //            HttpContext.Features.Get<IExceptionHandlerFeature>()!;
-
-        //        return Problem(
-        //            detail: exceptionHandlerFeature.Error.StackTrace,
-        //            title: exceptionHandlerFeature.Error.Message);
-        //    }
-
-        //    [ApiExplorerSettings(IgnoreApi = true)]
-        //    [Route("/error")]
-        //    public IActionResult HandleError() =>
-        //        Problem();
     }
 
     public class TareaViewModel

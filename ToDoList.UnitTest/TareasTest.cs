@@ -10,13 +10,14 @@ using NUnit.Framework.Constraints;
 using System.Reflection;
 using System.Xml.Serialization;
 using ToDoList.Aplicacion;
+using ToDoList.Comun.Excepciones;
 using ToDoList.DataAccess;
 using ToDoList.Dominio;
 
 namespace ToDoList.UnitTest
 {
     [TestFixture]
-    public class TareaTest
+    public class TareasTest
     {
         protected ISession session;
 
@@ -61,35 +62,47 @@ namespace ToDoList.UnitTest
 
 
         [Test]
-        public void Tarea_no_se_actualiza_con_estado_invalido()
+        public void Aplicacion_Tarea_no_se_actualiza_con_estado_invalido()
         {
-            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            var tareaService = new TareasService();
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
-                {
-                    new TareasService().ActualizarTarea(
-                        idTarea: 1,
-                        titulo: "",
-                        descripcion: "",
-                        estado: "estado invalido");
-                });
-            }
+                var tareaDTO = tareaService.Traer(1);
+
+                tareaService.ActualizarTarea(
+                    idTarea: tareaDTO.ID,
+                    titulo: tareaDTO.Titulo,
+                    descripcion: tareaDTO.Descripcion,
+                    estado: "estado invalido");
+            });
         }
 
         [Test]
-        public void Tarea_titulo_no_supera_longitud_maxima()
+        public void Aplicacion_Tarea_titulo_no_supera_longitud_maxima()
         {
-            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            var tareaService = new TareasService();
+
+            var ex = Assert.Throws<ToDoException>(() =>
             {
-                var ex = Assert.Throws<FluentValidation.ValidationException>(() =>
-                {
-                    new TareasService().ActualizarTarea(
-                        idTarea: 1,
-                        titulo: new string('x', 120),
-                        descripcion: "",
-                        estado: "pendiente");
-                });
-            }
+                var tareaDTO = tareaService.Traer(1);
+
+                new TareasService().ActualizarTarea(
+                    idTarea: tareaDTO.ID,
+                    titulo: new string('x', 120),
+                    descripcion: tareaDTO.Descripcion,
+                    estado: "pendiente");
+            });
+        }
+
+        [Test]
+        public void Dominio_Tarea_no_se_actualiza_con_estado_invalido()
+        {
+            var ex = Assert.Throws<ToDoException>(() =>
+            {
+                var tarea = new TareaRepository().Traer(1);
+
+                tarea.Estado = (EstadoTarea)424;
+            });
         }
     }
 }

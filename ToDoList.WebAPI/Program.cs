@@ -16,28 +16,12 @@ using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication().AddJwtBearer(
-    
-    /*options =>
-{
-// Configura las opciones para validar los tokens JWT
-options.TokenValidationParameters = new TokenValidationParameters
-{
-    ValidateIssuer = true,        // Verifica el emisor del token
-    ValidateAudience = true,      // Verifica la audiencia del token
-    ValidateLifetime = true,      // Verifica que el token no haya expirado
-    ValidateIssuerSigningKey = true, // Verifica la firma del token
-
-    ValidIssuer = "tu-issuer",    // El emisor esperado del token
-    ValidAudience = "tu-audience", // La audiencia esperada del token
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("tu-clave-secreta"))
-})**/);
+builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization(options =>
 {
-    // Definir una política que permita solo el acceso con un scope específico
     options.AddPolicy("TodoCrud", policy =>
     {
-        policy.RequireClaim("scope", "todo-crud");  // Reemplaza 'api.read' por el scope que desees
+        policy.RequireClaim("scope", "todo-crud");
     });
 });
 
@@ -105,7 +89,6 @@ builder.Services.Configure<RouteOptions>(options =>
 SessionManager.Instance.BuildSessionFactories(builder.Environment.ContentRootPath);
 
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -114,17 +97,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/error-development");
-//}
-//else
-//{
-//    app.UseExceptionHandler("/error");
-//}
-
 
 
 app.UseMiddleware<NHibernateSessionMiddleware>();

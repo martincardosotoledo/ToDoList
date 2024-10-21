@@ -9,7 +9,7 @@ using ToDoList.Dominio;
 
 namespace ToDoList.Aplicacion
 {
-    public class TareasService
+    public class TareasService : ServiceBase
     {
         public IList<TareaDTO> TraerTodas()
         {
@@ -26,18 +26,14 @@ namespace ToDoList.Aplicacion
 
         public int CrearTarea(string titulo, string descripcion)
         {
-            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            return UnitOfWork(() =>
             {
                 Tarea tarea = Tarea.Crear(titulo: titulo, descripcion: descripcion);
 
-                new TareaValidator().ValidateAndThrow(tarea);
-
                 new TareaRepository().Guardar(tarea); // mmm, cómo es que la tarea tiene un valor asignado aquí si se supone que es la base de datos la que debe asignarlo?
 
-                tran.Commit();
-
-                return tarea.ID; 
-            }
+                return tarea.ID;
+            });
         }
 
 
@@ -45,7 +41,7 @@ namespace ToDoList.Aplicacion
         {
             var repo = new TareaRepository();
 
-            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            UnitOfWork(() =>
             {
                 Tarea tarea = repo.Traer(idTarea);
 
@@ -53,24 +49,16 @@ namespace ToDoList.Aplicacion
                 tarea.Descripcion = descripcion;
                 tarea.Estado = ConvertirEstadoTareaDesdeDescripcion(estado);
 
-                new TareaValidator().ValidateAndThrow(tarea);
-
                 repo.Guardar(tarea);
-
-                tran.Commit();
-            }
+            });
         }
 
         public void EliminarTarea(int idTarea)
         {
-            var repo = new TareaRepository();
-
-            using (ITransaction tran = SessionManager.Instance.GetCurrentSession().BeginTransaction())
+            UnitOfWork(() =>
             {
-                repo.Eliminar(idTarea);
-
-                tran.Commit();
-            }
+                new TareaRepository().Eliminar(idTarea);
+            });
         }
 
         private EstadoTarea ConvertirEstadoTareaDesdeDescripcion(string descripcion)
