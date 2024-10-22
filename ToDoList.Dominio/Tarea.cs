@@ -45,7 +45,7 @@ namespace ToDoList.Dominio
             get => _descripcion; 
             set {
                 const int MAX_LENGTH = 500;
-                if (value.Length > MAX_LENGTH)
+                if (value is not null && value.Length > MAX_LENGTH)
                     throw ToDoException.ValidationError($"{nameof(Descripcion)} no puede tener más de {MAX_LENGTH} caracteres");
 
                 _descripcion = value;
